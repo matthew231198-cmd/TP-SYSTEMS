@@ -181,14 +181,13 @@ export async function logBoxOpen(
 export async function logWithdrawal(
   discordId: string,
   username: string,
-  hnpAmount: number,
-  walletAddress: string
+  hnpAmount: number
 ) {
   await db.insert(withdrawalsTable).values({
     discordId,
     username,
     hnpAmount: hnpAmount.toFixed(6),
-    walletAddress,
+    walletAddress: "",
   });
 }
 

@@ -16,12 +16,6 @@ export const data = new SlashCommandBuilder()
       .setDescription("Amount of HNP to withdraw")
       .setRequired(true)
       .setMinValue(0.0001)
-  )
-  .addStringOption((opt) =>
-    opt
-      .setName("wallet")
-      .setDescription("Your wallet address")
-      .setRequired(true)
   );
 
 export async function execute(
@@ -31,7 +25,6 @@ export async function execute(
   await interaction.deferReply({ ephemeral: true });
 
   const amount = interaction.options.getNumber("amount", true);
-  const wallet = interaction.options.getString("wallet", true);
 
   const user = await getOrCreateUser(
     interaction.user.id,
@@ -57,7 +50,7 @@ export async function execute(
     return;
   }
 
-  await logWithdrawal(interaction.user.id, interaction.user.username, amount, wallet);
+  await logWithdrawal(interaction.user.id, interaction.user.username, amount);
 
   const updatedUser = await getOrCreateUser(
     interaction.user.id,
@@ -74,8 +67,7 @@ export async function execute(
           .setColor(0xff9800)
           .addFields(
             { name: "👤 User", value: `<@${interaction.user.id}> (${interaction.user.username})`, inline: true },
-            { name: "💎 Amount", value: `**${formatHnp(amount)} HNP**`, inline: true },
-            { name: "🏦 Wallet Address", value: `\`${wallet}\``, inline: false }
+            { name: "💎 Amount", value: `**${formatHnp(amount)} HNP**`, inline: true }
           )
           .setFooter({ text: "HNP has been deducted from user balance" })
           .setTimestamp();
@@ -93,8 +85,7 @@ export async function execute(
     .setColor(0x4caf50)
     .addFields(
       { name: "💎 Withdrawn", value: `**${formatHnp(amount)} HNP**`, inline: true },
-      { name: "💰 Remaining Balance", value: `**${formatHnp(updatedUser.hnpBalance as string)} HNP**`, inline: true },
-      { name: "🏦 Wallet", value: `\`${wallet}\``, inline: false }
+      { name: "💰 Remaining Balance", value: `**${formatHnp(updatedUser.hnpBalance as string)} HNP**`, inline: true }
     )
     .setTimestamp();
 

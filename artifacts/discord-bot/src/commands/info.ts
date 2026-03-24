@@ -59,7 +59,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       {
         name: "💸 Step 3: Withdraw HNP",
         value: [
-          `• Use \`/withdraw <amount> <wallet>\` to request a withdrawal`,
+          `• Use \`/withdraw <amount>\` to request a withdrawal`,
           `• Your HNP balance is deducted immediately`,
           `• A notification is sent to the admin channel`,
           `• The admin team will process your withdrawal`,
@@ -74,7 +74,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
           `\`/leaderboard\` — View top TP earners`,
           `\`/shop\` — Browse available boxes`,
           `\`/buy <box>\` — Purchase a box`,
-          `\`/withdraw <amount> <wallet>\` — Withdraw HNP`,
+          `\`/withdraw <amount>\` — Withdraw HNP`,
           `\`/info\` — This guide`,
         ].join("\n"),
         inline: false,

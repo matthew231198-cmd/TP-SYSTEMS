@@ -24,7 +24,7 @@ export function formatHnp(amount: number | string): string {
 }
 
 export function calcTpPerMessage(): number {
-  return Math.floor(Math.random() * 5) + 1;
+  return 1;
 }
 
 export function getTodayString(): string {
