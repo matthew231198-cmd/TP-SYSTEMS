@@ -1,7 +1,7 @@
 modules = ["nodejs-24"]
 
 [deployment]
-deploymentTarget = "vm"
+deploymentTarget = "autoscale"
 build = ["pnpm", "--filter", "@workspace/discord-bot", "run", "build"]
 run = ["node", "--enable-source-maps", "artifacts/discord-bot/dist/index.mjs"]
 

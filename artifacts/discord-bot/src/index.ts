@@ -1,3 +1,4 @@
+import http from "http";
 import {
   Client,
   GatewayIntentBits,
@@ -110,6 +111,15 @@ client.on(Events.InteractionCreate, async (interaction) => {
 });
 
 client.login(token);
+
+const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+const server = http.createServer((_req, res) => {
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("Discord bot is running!");
+});
+server.listen(port, () => {
+  console.log(`✅ Health server listening on port ${port}`);
+});
 
 async function ensureSchema() {
   try {
