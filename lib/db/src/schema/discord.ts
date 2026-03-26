@@ -17,6 +17,7 @@ export const dailyActivityTable = pgTable("discord_daily_activity", {
   discordId: text("discord_id").notNull(),
   date: text("date").notNull(),
   pointsEarned: integer("points_earned").notNull().default(0),
+  invitePointsEarned: integer("invite_points_earned").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -45,6 +46,21 @@ export const botConfigTable = pgTable("discord_bot_config", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+export const invitesTable = pgTable("discord_invites", {
+  id: serial("id").primaryKey(),
+  inviteCode: text("invite_code").notNull().unique(),
+  inviterDiscordId: text("inviter_discord_id").notNull(),
+  guildId: text("guild_id").notNull(),
+  uses: integer("uses").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const joinedMembersTable = pgTable("discord_joined_members", {
+  id: serial("id").primaryKey(),
+  discordId: text("discord_id").notNull().unique(),
+  firstJoinedAt: timestamp("first_joined_at").notNull().defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(usersTable).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertDailyActivitySchema = createInsertSchema(dailyActivityTable).omit({ id: true, createdAt: true });
 export const insertOpenedBoxSchema = createInsertSchema(openedBoxesTable).omit({ id: true, openedAt: true });
@@ -55,3 +71,5 @@ export type DailyActivity = typeof dailyActivityTable.$inferSelect;
 export type OpenedBox = typeof openedBoxesTable.$inferSelect;
 export type Withdrawal = typeof withdrawalsTable.$inferSelect;
 export type BotConfig = typeof botConfigTable.$inferSelect;
+export type Invite = typeof invitesTable.$inferSelect;
+export type JoinedMember = typeof joinedMembersTable.$inferSelect;

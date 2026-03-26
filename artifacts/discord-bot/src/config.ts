@@ -40,30 +40,33 @@ export const BOX_TYPES = {
 export type BoxType = keyof typeof BOX_TYPES;
 
 export const HNP_REWARDS = {
-  common: { min: 0.002, max: 0.018 },
-  uncommon: { min: 0.02, max: 0.1 },
-  rare: { min: 0.12, max: 0.2 },
-  epic: { min: 0.2, max: 1.0 },
-  legendary: { min: 1.0, max: 2.0 },
+  common:    { min: 0.10, max: 0.25 },
+  uncommon:  { min: 0.25, max: 0.50 },
+  rare:      { min: 0.50, max: 0.75 },
+  epic:      { min: 0.75, max: 1.00 },
+  legendary: { min: 1.00, max: 2.00 },
 } as const;
 
 export type Rarity = keyof typeof HNP_REWARDS;
 
 export const RARITY_COLORS = {
-  common: 0x9e9e9e,
-  uncommon: 0x4caf50,
-  rare: 0x2196f3,
-  epic: 0x9c27b0,
+  common:    0x9e9e9e,
+  uncommon:  0x4caf50,
+  rare:      0x2196f3,
+  epic:      0x9c27b0,
   legendary: 0xffc107,
 } as const;
 
 export const RARITY_EMOJIS = {
-  common: "⚪",
-  uncommon: "🟢",
-  rare: "🔵",
-  epic: "🟣",
+  common:    "⚪",
+  uncommon:  "🟢",
+  rare:      "🔵",
+  epic:      "🟣",
   legendary: "🌟",
 } as const;
 
 export const MIN_MESSAGE_LENGTH = 10;
 export const MAX_DAILY_TP = 100;
+export const MAX_DAILY_INVITE_TP = 100;
+export const TP_PER_INVITE = 10;
+export const MIN_WITHDRAWAL = 1;

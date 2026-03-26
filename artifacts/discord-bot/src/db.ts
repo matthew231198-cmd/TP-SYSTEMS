@@ -5,9 +5,12 @@ import {
   openedBoxesTable,
   withdrawalsTable,
   botConfigTable,
+  invitesTable,
+  joinedMembersTable,
 } from "@workspace/db";
 import { eq, and, desc, sql } from "drizzle-orm";
 import type { BoxType, Rarity } from "./config.js";
+import { MAX_DAILY_INVITE_TP, TP_PER_INVITE } from "./config.js";
 
 export async function getOrCreateUser(discordId: string, username: string) {
   const existing = await db
@@ -54,6 +57,22 @@ export async function getDailyPoints(discordId: string): Promise<number> {
   return result.length > 0 ? result[0].pointsEarned : 0;
 }
 
+export async function getDailyInvitePoints(discordId: string): Promise<number> {
+  const today = await getTodayDate();
+  const result = await db
+    .select()
+    .from(dailyActivityTable)
+    .where(
+      and(
+        eq(dailyActivityTable.discordId, discordId),
+        eq(dailyActivityTable.date, today)
+      )
+    )
+    .limit(1);
+
+  return result.length > 0 ? (result[0].invitePointsEarned ?? 0) : 0;
+}
+
 export async function addTpPoints(
   discordId: string,
   username: string,
@@ -86,7 +105,7 @@ export async function addTpPoints(
   } else {
     await db
       .insert(dailyActivityTable)
-      .values({ discordId, date: today, pointsEarned: pointsToAdd });
+      .values({ discordId, date: today, pointsEarned: pointsToAdd, invitePointsEarned: 0 });
   }
 
   const user = await getOrCreateUser(discordId, username);
@@ -100,6 +119,52 @@ export async function addTpPoints(
     .where(eq(usersTable.discordId, discordId));
 
   return { newTotal: user.tpPoints + pointsToAdd, pointsAdded: pointsToAdd };
+}
+
+export async function addInviteTpPoints(
+  inviterDiscordId: string,
+  inviterUsername: string
+): Promise<{ pointsAdded: number }> {
+  const today = await getTodayDate();
+  const dailyInviteEarned = await getDailyInvitePoints(inviterDiscordId);
+  const remaining = Math.max(0, MAX_DAILY_INVITE_TP - dailyInviteEarned);
+
+  if (remaining <= 0) return { pointsAdded: 0 };
+
+  const pointsToAdd = Math.min(TP_PER_INVITE, remaining);
+
+  const existing = await db
+    .select()
+    .from(dailyActivityTable)
+    .where(
+      and(
+        eq(dailyActivityTable.discordId, inviterDiscordId),
+        eq(dailyActivityTable.date, today)
+      )
+    )
+    .limit(1);
+
+  if (existing.length > 0) {
+    await db
+      .update(dailyActivityTable)
+      .set({ invitePointsEarned: (existing[0].invitePointsEarned ?? 0) + pointsToAdd })
+      .where(eq(dailyActivityTable.id, existing[0].id));
+  } else {
+    await db
+      .insert(dailyActivityTable)
+      .values({ discordId: inviterDiscordId, date: today, pointsEarned: 0, invitePointsEarned: pointsToAdd });
+  }
+
+  const user = await getOrCreateUser(inviterDiscordId, inviterUsername);
+  await db
+    .update(usersTable)
+    .set({
+      tpPoints: user.tpPoints + pointsToAdd,
+      updatedAt: new Date(),
+    })
+    .where(eq(usersTable.discordId, inviterDiscordId));
+
+  return { pointsAdded: pointsToAdd };
 }
 
 export async function getLeaderboard(limit = 10) {
@@ -250,4 +315,61 @@ export async function getUserByDiscordId(discordId: string) {
     .where(eq(usersTable.discordId, discordId))
     .limit(1);
   return result.length > 0 ? result[0] : null;
+}
+
+export async function saveInvite(
+  inviteCode: string,
+  inviterDiscordId: string,
+  guildId: string
+) {
+  await db
+    .insert(invitesTable)
+    .values({ inviteCode, inviterDiscordId, guildId, uses: 0 })
+    .onConflictDoNothing();
+}
+
+export async function getOrCreateInvite(inviterDiscordId: string, guildId: string) {
+  const result = await db
+    .select()
+    .from(invitesTable)
+    .where(
+      and(
+        eq(invitesTable.inviterDiscordId, inviterDiscordId),
+        eq(invitesTable.guildId, guildId)
+      )
+    )
+    .limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function getInviteByCode(code: string) {
+  const result = await db
+    .select()
+    .from(invitesTable)
+    .where(eq(invitesTable.inviteCode, code))
+    .limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function updateInviteUses(code: string, uses: number) {
+  await db
+    .update(invitesTable)
+    .set({ uses })
+    .where(eq(invitesTable.inviteCode, code));
+}
+
+export async function isFirstTimeJoin(discordId: string): Promise<boolean> {
+  const result = await db
+    .select()
+    .from(joinedMembersTable)
+    .where(eq(joinedMembersTable.discordId, discordId))
+    .limit(1);
+  return result.length === 0;
+}
+
+export async function recordMemberJoin(discordId: string) {
+  await db
+    .insert(joinedMembersTable)
+    .values({ discordId })
+    .onConflictDoNothing();
 }

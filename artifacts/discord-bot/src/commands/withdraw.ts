@@ -6,16 +6,17 @@ import {
 } from "discord.js";
 import { getOrCreateUser, deductHnp, logWithdrawal, getBotConfig } from "../db.js";
 import { formatHnp } from "../utils.js";
+import { MIN_WITHDRAWAL } from "../config.js";
 
 export const data = new SlashCommandBuilder()
   .setName("withdraw")
   .setDescription("Withdraw your HNP balance")
-  .addNumberOption((opt) =>
+  .addIntegerOption((opt) =>
     opt
       .setName("amount")
-      .setDescription("Amount of HNP to withdraw")
+      .setDescription(`Amount of HNP to withdraw (whole numbers only, minimum ${MIN_WITHDRAWAL})`)
       .setRequired(true)
-      .setMinValue(0.0001)
+      .setMinValue(MIN_WITHDRAWAL)
   );
 
 export async function execute(
@@ -24,7 +25,16 @@ export async function execute(
 ) {
   await interaction.deferReply({ ephemeral: true });
 
-  const amount = interaction.options.getNumber("amount", true);
+  const amount = interaction.options.getInteger("amount", true);
+
+  if (amount < MIN_WITHDRAWAL) {
+    const embed = new EmbedBuilder()
+      .setTitle("❌ Amount Too Low")
+      .setDescription(`Minimum withdrawal is **${MIN_WITHDRAWAL} HNP**.`)
+      .setColor(0xe74c3c);
+    await interaction.editReply({ embeds: [embed] });
+    return;
+  }
 
   const user = await getOrCreateUser(
     interaction.user.id,
