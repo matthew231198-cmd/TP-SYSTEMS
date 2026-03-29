@@ -20,7 +20,7 @@ import * as balance from "./commands/balance.ts";
 import * as shop from "./commands/shop.ts";
 import * as buy from "./commands/buy.ts";
 import * as withdraw from "./commands/withdraw.ts";
-import * as info from "./commands/info/ts";
+import * as info from "./commands/info.ts";
 import * as admin from "./commands/admin.ts";
 import * as invite from "./commands/invite.ts";
 
