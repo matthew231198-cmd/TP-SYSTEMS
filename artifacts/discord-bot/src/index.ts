@@ -33,9 +33,9 @@ import {
   isFirstTimeJoin,
   recordMemberJoin,
   addInviteTpPoints,
-} from "./db.js";
-import { MIN_MESSAGE_LENGTH, MAX_DAILY_TP, TP_PER_INVITE } from "./config.js";
-import { isEventActive, calcTpPerMessage } from "./utils.js";
+} from "./db.ts";
+import { MIN_MESSAGE_LENGTH, MAX_DAILY_TP, TP_PER_INVITE } from "./config.ts";
+import { isEventActive, calcTpPerMessage } from "./utils.ts";
 
 const token = process.env.DISCORD_BOT_TOKEN;
 if (!token) throw new Error("DISCORD_BOT_TOKEN is required");
