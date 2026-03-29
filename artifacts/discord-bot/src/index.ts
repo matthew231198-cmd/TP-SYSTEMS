@@ -242,10 +242,22 @@ client.on(Events.InteractionCreate, async (interaction) => {
 client.login(token);
 
 const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+const startTime = Date.now();
+
 const server = http.createServer((_req, res) => {
-  res.writeHead(200, { "Content-Type": "text/plain" });
-  res.end("Discord bot is running!");
+  const uptimeSeconds = Math.floor((Date.now() - startTime) / 1000);
+  const isReady = client.isReady();
+  const status = {
+    status: isReady ? "ok" : "starting",
+    bot: client.user?.tag ?? "connecting...",
+    uptime_seconds: uptimeSeconds,
+    guilds: client.guilds.cache.size,
+    timestamp: new Date().toISOString(),
+  };
+  res.writeHead(isReady ? 200 : 503, { "Content-Type": "application/json" });
+  res.end(JSON.stringify(status));
 });
+
 server.listen(port, () => {
   console.log(`✅ Health server listening on port ${port}`);
 });
