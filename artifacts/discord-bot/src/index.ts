@@ -15,14 +15,14 @@ import {
 } from "@workspace/db";
 import { sql } from "drizzle-orm";
 
-import * as leaderboard from "./commands/leaderboard";
-import * as balance from "./commands/balance";
-import * as shop from "./commands/shop";
-import * as buy from "./commands/buy";
-import * as withdraw from "./commands/withdraw";
-import * as info from "./commands/info";
-import * as admin from "./commands/admin";
-import * as invite from "./commands/invite";
+import * as leaderboard from "./commands/leaderboard.ts";
+import * as balance from "./commands/balance.ts";
+import * as shop from "./commands/shop.ts";
+import * as buy from "./commands/buy.ts";
+import * as withdraw from "./commands/withdraw.ts";
+import * as info from "./commands/info/ts";
+import * as admin from "./commands/admin.ts";
+import * as invite from "./commands/invite.ts";
 
 import {
   addTpPoints,
